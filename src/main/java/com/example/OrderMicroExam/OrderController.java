@@ -3,8 +3,9 @@ package com.example.OrderMicroExam;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/orders")
@@ -30,6 +31,11 @@ public class OrderController {
                     .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping
+    public ResponseEntity<List<Order>> getAllOrders() {
+        return ResponseEntity.ok(orderService.GETAllOrders());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order updateOrder) {
         Order updated = orderService.updateOrder(id, updateOrder);
@@ -41,6 +47,7 @@ public class OrderController {
         orderService.deleteOrderById(id);
         return ResponseEntity.noContent().build();
     }
+
 
 }
 

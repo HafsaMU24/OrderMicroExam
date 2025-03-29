@@ -1,11 +1,10 @@
 package com.example.OrderMicroExam;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -18,21 +17,21 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     public OrderService(WebClient webClient, OrderRepository orderRepository){
-        this.webClient = WebClient.builder().baseUrl("http://localhost:8082").build();
+        this.webClient = WebClient.builder().baseUrl("http://localhost:8081").build();
         this.orderRepository = orderRepository;
     }
 
     public Optional<Order> getOrder(Long id) {
         return orderRepository.findById(id);
     }
-
+@GetMapping
     public List<Order> GETAllOrders() {
         return orderRepository.findAll();
     }
 
     public Order createOrder(Order order) {
-        boolean productExists = checkIfProductExists(order.getProduct());
-        if (!productExists) {
+        boolean Exists = checkIfProductExists(order.getProduct());
+        if (!Exists) {
             throw new RuntimeException("Product finns ej i ProductService");
         }
         //Default-status
@@ -54,10 +53,12 @@ public class OrderService {
                 } )
                 .orElseThrow(( )-> new RuntimeException("Order med ID" + id + "hittades inte"));
     }
-    private boolean checkIfProductExists(String productName) {
+    // Denna metod kallar productservice
+    @GetMapping("/products/{name}")
+    private boolean checkIfProductExists(@PathVariable String productName) {
         try{
             String response = webClient.get()
-                    .uri("/products/name/" + productName)
+                    .uri("/products/name" + productName)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();

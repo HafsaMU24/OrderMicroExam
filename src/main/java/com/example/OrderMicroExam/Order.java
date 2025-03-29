@@ -10,16 +10,16 @@ public class Order {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
 
     private Long id;
-    private Long userId;
+    private Long user_id;
     private String product;
     private String status;
     private int quantity;
 
     public Order() {}
 
-    public Order(Long id, Long userId, String product, String status, int quantity) {
+    public Order(Long id, Long user_id, String product, String status, int quantity) {
         this.id = id;
-        this.userId = userId;
+        this.user_id = user_id;
         this.product = product;
         this.status = status;
         this.quantity = quantity;
@@ -34,10 +34,10 @@ public class Order {
     }
 
     public Long getUserId(){
-        return userId;
+        return user_id;
     }
     public void setUserId(Long userId) {
-        this.userId = userId;
+        this.user_id = userId;
     }
 
     public String getProduct() {
