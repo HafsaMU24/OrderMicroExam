@@ -2,9 +2,7 @@ package com.example.OrderMicroExam;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,37 +10,35 @@ import java.util.Optional;
 @RequestMapping("/orders")
 public class OrderService {
 
-    private final WebClient webClient;
+    private final ProductClient productClient;
 
     private final OrderRepository orderRepository;
 
-    public OrderService(WebClient webClient, OrderRepository orderRepository){
-        this.webClient = WebClient.builder().baseUrl("http://localhost:8081").build();
+    public OrderService(ProductClient productClient, OrderRepository orderRepository){
+        this.productClient = productClient;
         this.orderRepository = orderRepository;
     }
 
     public Optional<Order> getOrder(Long id) {
         return orderRepository.findById(id);
     }
-@GetMapping
+
+   @GetMapping
     public List<Order> GETAllOrders() {
         return orderRepository.findAll();
     }
 
     public Order createOrder(Order order) {
-        boolean Exists = checkIfProductExists(order.getProduct());
+        boolean Exists = productClient.checkIfProductExists(order.getProduct());
         if (!Exists) {
-            throw new RuntimeException("Product finns ej i ProductService");
+            throw new RuntimeException("Produkten finns inte i  ProductService");
         }
         //Default-status
         order.setStatus("PLACED");
         return orderRepository.save(order);
     }
 
-    public void deleteOrderById(Long id) {
-        orderRepository.deleteById(id);
-    }
-    public Order updateOrder(Long id,Order updateOrder) {
+    public Order updateOrder(Long id, Order updateOrder) {
         return orderRepository.findById(id)
                 .map(existingOrder -> {
                     existingOrder.setProduct(updateOrder.getProduct());
@@ -53,19 +49,8 @@ public class OrderService {
                 } )
                 .orElseThrow(( )-> new RuntimeException("Order med ID" + id + "hittades inte"));
     }
-    // Denna metod kallar productservice
-    @GetMapping("/products/{name}")
-    private boolean checkIfProductExists(@PathVariable String productName) {
-        try{
-            String response = webClient.get()
-                    .uri("/products/name" + productName)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-            return response != null && !response.isEmpty();
-        }
-        catch (Exception e) {
-            return false;
-        }
+    public void deleteOrderById(Long id) {
+        orderRepository.deleteById(id);
     }
+
 }
