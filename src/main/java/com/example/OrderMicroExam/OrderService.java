@@ -10,12 +10,12 @@ import java.util.Optional;
 @RequestMapping("/orders")
 public class OrderService {
 
-    private final ProductClient productClient;
+    private final OrderClient orderClient;
 
     private final OrderRepository orderRepository;
 
-    public OrderService(ProductClient productClient, OrderRepository orderRepository){
-        this.productClient = productClient;
+    public OrderService(OrderClient orderClient, OrderRepository orderRepository){
+        this.orderClient = orderClient;
         this.orderRepository = orderRepository;
     }
 
@@ -29,12 +29,6 @@ public class OrderService {
     }
 
     public Order createOrder(Order order) {
-        boolean Exists = productClient.checkIfProductExists(order.getProduct());
-        if (!Exists) {
-            throw new RuntimeException("Produkten finns inte i  ProductService");
-        }
-        //Default-status
-        order.setStatus("PLACED");
         return orderRepository.save(order);
     }
 
